@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nest Multer upload example</title>
+    <script src="axios.min.js"></script>
+</head>
+<body>
+    <div>
+        <span>Single file</span>
+        <input id="fileInput" type="file" />
+    </div>
+    <div>----------------------------------------------------------------</div>
+    <div>
+        <span>Multiple files</span>
+        <input id="multiFileInput" type="file" multiple />
+    </div>
+    <div>----------------------------------------------------------------</div>
+    <div>
+        <span>Multiple files with specified Fields</span>
+        <input id="multiFileWithSpecifiedFieldsInput" type="file" multiple />
+    </div>
+    <div>----------------------------------------------------------------</div>
+    <div>
+        <span>Multiple files with Fields</span>
+        <input id="multiFileWithFieldsInput" type="file" multiple />
+    </div>
+
+    <script>
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, 
+                function(c) {
+                    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    
+                    return v.toString(16);
+                }
+            );
+        }
+
+        const fileInput = document.querySelector('#fileInput');
+        async function formData() {
+            const data = new FormData();
+            data.set('foo', 'bar');
+            data.set('serial', 114514);
+            data.set('file', fileInput.files[0]);
+
+            const res = await axios.post('http://localhost:3000/upload', data);
+            console.log(res);
+        }
+        fileInput.addEventListener('change', formData);
+
+        const multiFileInput = document.querySelector('#multiFileInput');
+        async function formMultiData() {
+            const data = new FormData();
+            data.set('foo', 'bar');
+            data.set('serial', 114514);
+            Array.from(multiFileInput.files).map(file => {
+                data.append('files', file);
+            });
+
+            const res = await axios.post('http://localhost:3000/upload-multiple', data);
+            console.log(res);
+        }
+        multiFileInput.addEventListener('change', formMultiData);
+
+        const multiFileWithFieldsInput = document.querySelector('#multiFileWithFieldsInput');
+        async function formMultiWithFieldsData() {
+            const data = new FormData();
+            data.set('foo', 'bar');
+            data.set('serial', 114514);
+            Array.from(multiFileWithFieldsInput.files).map((file, idx) => {
+                data.append(generateUUID(), file);
+            });
+            const res = await axios.post('http://localhost:3000/upload-multiple-with-fields', data);
+            console.log(res);
+        }
+        multiFileWithFieldsInput.addEventListener('change', formMultiWithFieldsData);
+    </script>
+</body>
+</html>
